@@ -1,0 +1,89 @@
+# ------------------------------------------------------------------
+# One-time tool setup and configuration
+# ------------------------------------------------------------------
+[bootstrap.packages]
+"apt:git"        = "latest"
+"dnf:git"        = "latest"
+"pacman:git"     = "latest"
+"zypper:git"     = "latest"
+"brew:git"       = "latest"
+"scoop:git"      = "latest"
+"winget:Git.Git" = "latest"
+
+[env]
+_.path = ["{{ config_root }}/bin"]
+
+# ------------------------------------------------------------------
+# Regular git command shortcuts (via aliases/function as per shell)
+# ------------------------------------------------------------------
+### Bash / Zsh / Fish (Native [shell_alias] support)
+[shell_alias]
+gb     = "git branch"
+ga     = "git add"
+gc     = "git commit -s -v"
+gco    = "git checkout"
+gcp    = "git cherry-pick"
+gd     = "git diff"
+gds    = "git diff --staged"
+gdt    = "git difftool"
+gpatch = "git format-patch -1"
+gclean = "git clean -fd"
+gf     = "git fetch --all --prune"
+gll    = "git pull --prune"
+gsl    = "git shortlog -sn"
+glt    = "git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=format:'%d-%b\\`%y %H:%M %z'"
+glth   = "git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=format:'%d-%b\\`%y %H:%M %z' | head"
+gs     = "git status -s"
+gsm    = "git status -uno"
+gss    = "git status"
+gp     = "git push"
+grh    = "git reset --hard"
+grv    = "git remote -v"
+### Powershell (Use hooks and funcs until [shell_alias] is supported)
+[hooks.enter]
+shell = "pwsh"
+script = """
+if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
+$__before = (Get-Command -CommandType Function).Name
+
+function gb     { git branch @args }
+function ga     { git add @args }
+function gc     { git commit -s -v @args }
+function gco    { git checkout @args }
+function gcp    { git cherry-pick @args }
+function gd     { git diff @args }
+function gds    { git diff --staged @args }
+function gdt    { git difftool @args }
+function gpatch { git format-patch -1 @args }
+function gclean { git clean -fd @args }
+function gf     { git fetch --all --prune @args }
+function gll    { git pull --prune @args }
+function gsl    { git shortlog -sn @args }
+function glt    { git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=format:'%d-%b\\`%y %H:%M %z' @args }
+function glth   { glt | Select-Object -First 10 }"
+function gs     { git status -s @args }
+function gsm    { git status -uno @args }
+function gss    { git status @args }
+function gp     { git push @args }
+function grh    { git reset --hard @args }
+function grv    { git remote -v @args }
+
+# Save diff snapshot of function registry to get func names from this toml
+$__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }
+$global:__mise_func_registry[(Get-Location).Path] = $__new
+"""
+
+# ------------------------------------------------------------------
+# Undefine git command shortcuts (aliases/function as per shell)
+# ------------------------------------------------------------------
+### Powershell (Use hooks and undeclare funcs until [shell_alias] is supported)
+[hooks.leave]
+shell = "pwsh"
+script = """
+$key = (Get-Location).Path
+# Use previously created diff-snapshot to get list of func names to unset/remove from registry
+if ($global:__mise_func_registry -and $global:__mise_func_registry.ContainsKey($key)) {
+	$global:__mise_func_registry[$key] | ForEach-Object { Remove-Item "function:$_" -Force }
+	$global:__mise_func_registry.Remove($key)
+}
+"""

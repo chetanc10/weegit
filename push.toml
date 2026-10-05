@@ -1,0 +1,67 @@
+# ------------------------------------------------------------------
+# One-time tool setup and configuration
+# ------------------------------------------------------------------
+[bootstrap.packages]
+"apt:git"        = "latest"
+"dnf:git"        = "latest"
+"pacman:git"     = "latest"
+"zypper:git"     = "latest"
+"brew:git"       = "latest"
+"scoop:git"      = "latest"
+"winget:Git.Git" = "latest"
+
+[env]
+_.path = ["{{ config_root }}/bin"]
+
+# ------------------------------------------------------------------
+# Git Push command shortcuts (via aliases/function as per shell)
+# ------------------------------------------------------------------
+### Bash / Zsh / Fish (Native [shell_alias] support)
+[shell_alias]
+gp     = "git push"
+gpd    = "git push --delete"
+gpf    = "git push --force-with-lease"
+gpff   = "git push --force"
+gpo    = "git push origin HEAD"
+gpom   = "git push origin $(get_default_branch)"
+gpu    = "git push --set-upstream"
+gpunch = "git push --force-with-lease"
+gpuo   = "git push --set-upstream origin"
+gpuoc  = "git push --set-upstream origin $(git symbolic-ref --short HEAD)"
+### Powershell (Use hooks and funcs until [shell_alias] is supported)
+[hooks.enter]
+shell = "pwsh"
+script = """
+if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
+$__before = (Get-Command -CommandType Function).Name
+
+function gp     { git push @args }
+function gpd    { git push --delete @args }
+function gpf    { git push --force-with-lease @args }
+function gpff   { git push --force @args }
+function gpo    { git push origin HEAD @args }
+function gpom   { git push origin $(get_default_branch) @args }
+function gpu    { git push --set-upstream @args }
+function gpunch { git push --force-with-lease @args }
+function gpuo   { git push --set-upstream origin @args }
+function gpuoc  { git push --set-upstream origin $(git symbolic-ref --short HEAD) @args }
+
+# Save diff snapshot of function registry to get func names from this toml
+$__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }
+$global:__mise_func_registry[(Get-Location).Path] = $__new
+"""
+
+# ------------------------------------------------------------------
+# Undefine git command shortcuts (aliases/function as per shell)
+# ------------------------------------------------------------------
+### Powershell (Use hooks and undeclare funcs until [shell_alias] is supported)
+[hooks.leave]
+shell = "pwsh"
+script = """
+$key = (Get-Location).Path
+# Use previously created diff-snapshot to get list of func names to unset/remove from registry
+if ($global:__mise_func_registry -and $global:__mise_func_registry.ContainsKey($key)) {
+	$global:__mise_func_registry[$key] | ForEach-Object { Remove-Item "function:$_" -Force }
+	$global:__mise_func_registry.Remove($key)
+}
+"""

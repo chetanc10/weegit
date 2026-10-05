@@ -1,0 +1,59 @@
+# ------------------------------------------------------------------
+# One-time tool setup and configuration
+# ------------------------------------------------------------------
+[bootstrap.packages]
+"apt:git"        = "latest"
+"dnf:git"        = "latest"
+"pacman:git"     = "latest"
+"zypper:git"     = "latest"
+"brew:git"       = "latest"
+"scoop:git"      = "latest"
+"winget:Git.Git" = "latest"
+
+[env]
+_.path = ["{{ config_root }}/bin"]
+
+# ------------------------------------------------------------------
+# Git Fetch command shortcuts (via aliases/function as per shell)
+# ------------------------------------------------------------------
+### Bash / Zsh / Fish (Native [shell_alias] support)
+[shell_alias]
+gf   = "git fetch --all --prune"
+gft  = "git fetch --all --prune --tags"
+gftv = "git fetch --all --prune --tags --verbose"
+gfv  = "git fetch --all --prune --verbose"
+gmu  = "git fetch origin -v; git fetch upstream -v; git merge upstream/$(get_default_branch)"
+gup  = "git fetch && git rebase"
+### Powershell (Use hooks and funcs until [shell_alias] is supported)
+[hooks.enter]
+shell = "pwsh"
+script = """
+if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
+$__before = (Get-Command -CommandType Function).Name
+
+function gf   { git fetch --all --prune @args }
+function gft  { git fetch --all --prune --tags @args }
+function gftv { git fetch --all --prune --tags --verbose @args }
+function gfv  { git fetch --all --prune --verbose @args }
+function gmu  { git fetch origin -v; git fetch upstream -v; git merge upstream/$(get_default_branch) @args }
+function gup  { git fetch && git rebase @args }
+
+# Save diff snapshot of function registry to get func names from this toml
+$__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }
+$global:__mise_func_registry[(Get-Location).Path] = $__new
+"""
+
+# ------------------------------------------------------------------
+# Undefine git command shortcuts (aliases/function as per shell)
+# ------------------------------------------------------------------
+### Powershell (Use hooks and undeclare funcs until [shell_alias] is supported)
+[hooks.leave]
+shell = "pwsh"
+script = """
+$key = (Get-Location).Path
+# Use previously created diff-snapshot to get list of func names to unset/remove from registry
+if ($global:__mise_func_registry -and $global:__mise_func_registry.ContainsKey($key)) {
+	$global:__mise_func_registry[$key] | ForEach-Object { Remove-Item "function:$_" -Force }
+	$global:__mise_func_registry.Remove($key)
+}
+"""
