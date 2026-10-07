@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for git fetch commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,19 +14,19 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
-# Git Stash command shortcuts (via aliases/function as per shell)
+# Git Fetch command shortcuts (via aliases/function as per shell)
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gst   = "git stash"
-gstb  = "git stash branch"
-gstd  = "git stash drop"
-gstl  = "git stash list"
-gstp  = "git stash pop"
-gstpo = "git stash pop"
+gf   = "git fetch --all --prune"
+gft  = "git fetch --all --prune --tags"
+gftv = "git fetch --all --prune --tags --verbose"
+gfv  = "git fetch --all --prune --verbose"
+gmu  = "git fetch origin -v; git fetch upstream -v; git merge upstream/$(get_default_branch)"
+gup  = "git fetch && git rebase"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -31,12 +34,12 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gst   { git stash @args }
-function gstb  { git stash branch @args }
-function gstd  { git stash drop @args }
-function gstl  { git stash list @args }
-function gstp  { git stash pop @args }
-function gstpo { git stash pop @args }
+function gf   { git fetch --all --prune @args }
+function gft  { git fetch --all --prune --tags @args }
+function gftv { git fetch --all --prune --tags --verbose @args }
+function gfv  { git fetch --all --prune --verbose @args }
+function gmu  { git fetch origin -v; git fetch upstream -v; git merge upstream/$(get_default_branch) @args }
+function gup  { git fetch && git rebase @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }

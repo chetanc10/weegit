@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for git checkout commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,23 +14,20 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
-# Git Push command shortcuts (via aliases/function as per shell)
+# Git Commit command shortcuts (via aliases/function as per shell)
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gp     = "git push"
-gpd    = "git push --delete"
-gpf    = "git push --force-with-lease"
-gpff   = "git push --force"
-gpo    = "git push origin HEAD"
-gpom   = "git push origin $(get_default_branch)"
-gpu    = "git push --set-upstream"
-gpunch = "git push --force-with-lease"
-gpuo   = "git push --set-upstream origin"
-gpuoc  = "git push --set-upstream origin $(git symbolic-ref --short HEAD)"
+gcb   = "git checkout -b"
+gco   = "git checkout"
+gcob  = "git checkout -b"
+gcobu = "git checkout -b ${USER}/"
+gcom  = "git checkout $(get_default_branch)"
+gcpd  = "git checkout $(get_default_branch); git pull; git branch -D"
+gct   = "git checkout --track"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -35,16 +35,13 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gp     { git push @args }
-function gpd    { git push --delete @args }
-function gpf    { git push --force-with-lease @args }
-function gpff   { git push --force @args }
-function gpo    { git push origin HEAD @args }
-function gpom   { git push origin $(get_default_branch) @args }
-function gpu    { git push --set-upstream @args }
-function gpunch { git push --force-with-lease @args }
-function gpuo   { git push --set-upstream origin @args }
-function gpuoc  { git push --set-upstream origin $(git symbolic-ref --short HEAD) @args }
+function gcb   { git checkout -b @args }
+function gco   { git checkout @args }
+function gcob  { git checkout -b @args }
+function gcobu { git checkout -b ${USER}/ @args }
+function gcom  { git checkout $(get_default_branch) @args }
+function gcpd  { git checkout $(get_default_branch); git pull; git branch -D @args }
+function gct   { git checkout --track @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }

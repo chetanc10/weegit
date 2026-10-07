@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#about = Shallow clone a repo with single branch
 
 [ $# == 0 ] && echo -e "Usage: $0 <repo-url> [branch]\nbranch defaults to master if not specified" & exit 0
 

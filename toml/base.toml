@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for most commonly used git commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,7 +14,7 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
 # Regular git command shortcuts (via aliases/function as per shell)
@@ -33,9 +36,8 @@ gll    = "git pull --prune"
 gsl    = "git shortlog -sn"
 glt    = "git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=format:'%d-%b\\`%y %H:%M %z'"
 glth   = "git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=format:'%d-%b\\`%y %H:%M %z' | head"
-gs     = "git status -s"
+gs     = "git status"
 gsm    = "git status -uno"
-gss    = "git status"
 gp     = "git push"
 grh    = "git reset --hard"
 grv    = "git remote -v"
@@ -61,9 +63,8 @@ function gll    { git pull --prune @args }
 function gsl    { git shortlog -sn @args }
 function glt    { git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=format:'%d-%b\\`%y %H:%M %z' @args }
 function glth   { glt | Select-Object -First 10 }"
-function gs     { git status -s @args }
+function gs     { git status @args }
 function gsm    { git status -uno @args }
-function gss    { git status @args }
 function gp     { git push @args }
 function grh    { git reset --hard @args }
 function grv    { git remote -v @args }

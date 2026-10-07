@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for git merge commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,19 +14,18 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
-# Git Fetch command shortcuts (via aliases/function as per shell)
+# Git Merge command shortcuts (via aliases/function as per shell)
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gf   = "git fetch --all --prune"
-gft  = "git fetch --all --prune --tags"
-gftv = "git fetch --all --prune --tags --verbose"
-gfv  = "git fetch --all --prune --verbose"
-gmu  = "git fetch origin -v; git fetch upstream -v; git merge upstream/$(get_default_branch)"
-gup  = "git fetch && git rebase"
+gm  = "git merge"
+gma = "git merge --abort"
+gmc = "git merge --continue"
+gms = "git merge --squash"
+gmt = "git mergetool"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -31,12 +33,11 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gf   { git fetch --all --prune @args }
-function gft  { git fetch --all --prune --tags @args }
-function gftv { git fetch --all --prune --tags --verbose @args }
-function gfv  { git fetch --all --prune --verbose @args }
-function gmu  { git fetch origin -v; git fetch upstream -v; git merge upstream/$(get_default_branch) @args }
-function gup  { git fetch && git rebase @args }
+function gm  { git merge @args }
+function gma { git merge --abort @args }
+function gmc { git merge --continue @args }
+function gms { git merge --squash @args }
+function gmt { git mergetool @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }

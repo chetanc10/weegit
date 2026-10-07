@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for git push commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,17 +14,23 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
-# Git Reset command shortcuts (via aliases/function as per shell)
+# Git Push command shortcuts (via aliases/function as per shell)
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gus       = "git reset HEAD"
-grh       = "git reset"
-grh!      = "git reset --hard"
-gpristine = "git reset --hard && git clean -dfx"
+gp     = "git push"
+gpd    = "git push --delete"
+gpf    = "git push --force-with-lease"
+gpff   = "git push --force"
+gpo    = "git push origin HEAD"
+gpom   = "git push origin $(get_default_branch)"
+gpu    = "git push --set-upstream"
+gpunch = "git push --force-with-lease"
+gpuo   = "git push --set-upstream origin"
+gpuoc  = "git push --set-upstream origin $(git symbolic-ref --short HEAD)"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -29,10 +38,16 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gus       { git reset HEAD @args }
-function grh       { git reset @args }
-function grh!      { git reset --hard @args }
-function gpristine { git reset --hard && git clean -dfx @args }
+function gp     { git push @args }
+function gpd    { git push --delete @args }
+function gpf    { git push --force-with-lease @args }
+function gpff   { git push --force @args }
+function gpo    { git push origin HEAD @args }
+function gpom   { git push origin $(get_default_branch) @args }
+function gpu    { git push --set-upstream @args }
+function gpunch { git push --force-with-lease @args }
+function gpuo   { git push --set-upstream origin @args }
+function gpuoc  { git push --set-upstream origin $(git symbolic-ref --short HEAD) @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }

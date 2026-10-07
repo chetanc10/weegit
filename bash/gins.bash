@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#about = Git inspect each modified file and act on it (diff and revert)
 set -euo pipefail
 
 cmd="$(basename "$0")"

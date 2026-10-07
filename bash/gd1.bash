@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#about = Git diff for given file as a temporary file
 set -euo pipefail
 
 tmp=$(mktemp)

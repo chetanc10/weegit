@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for git rebase commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,23 +14,20 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
-# Git Branch command shortcuts (via aliases/function as per shell)
+# Git Rebase command shortcuts (via aliases/function as per shell)
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gb   = "git branch"
-gba  = "git branch --all"
-gbd  = "git branch -d"
-gbD  = "git branch -D"
-gbl  = "git branch --list"
-gbla = "git branch --list --all"
-gblr = "git branch --list --remotes"
-gbm  = "git branch --move"
-gbr  = "git branch --remotes"
-gbt  = "git branch --track"
+grb   = "git rebase"
+grba  = "git rebase --abort"
+grbc  = "git rebase --continue"
+grbm  = "git rebase $(get_default_branch)"
+grbmi = "git rebase $(get_default_branch) --interactive"
+grbma = "GIT_SEQUENCE_EDITOR=: git rebase $(get_default_branch) --interactive --autosquash"
+gprom = "git fetch origin $(get_default_branch) && git rebase origin/$(get_default_branch) && git update-ref refs/heads/$(get_default_branch) origin/$(get_default_branch)"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -35,16 +35,13 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gb   { git branch @args }
-function gba  { git branch --all @args }
-function gbd  { git branch -d @args }
-function gbD  { git branch -D @args }
-function gbl  { git branch --list @args }
-function gbla { git branch --list --all @args }
-function gblr { git branch --list --remotes @args }
-function gbm  { git branch --move @args }
-function gbr  { git branch --remotes @args }
-function gbt  { git branch --track @args }
+function grb   { git rebase @args }
+function grba  { git rebase --abort @args }
+function grbc  { git rebase --continue @args }
+function grbm  { git rebase $(get_default_branch) @args }
+function grbmi { git rebase $(get_default_branch) --interactive @args }
+function grbma { GIT_SEQUENCE_EDITOR=: git rebase $(get_default_branch) --interactive --autosquash @args }
+function gprom { git fetch origin $(get_default_branch) && git rebase origin/$(get_default_branch) && git update-ref refs/heads/$(get_default_branch) origin/$(get_default_branch) @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }

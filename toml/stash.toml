@@ -1,3 +1,6 @@
+[_]
+about = "Shortcuts for git stash commands"
+
 # ------------------------------------------------------------------
 # One-time tool setup and configuration
 # ------------------------------------------------------------------
@@ -11,15 +14,19 @@
 "winget:Git.Git" = "latest"
 
 [env]
-_.path = ["{{ config_root }}/bin"]
+_.path = ["{{ config_root }}/.mise/conf.d/bin"]
 
 # ------------------------------------------------------------------
-# Git Cherrypick command shortcuts (via aliases/function as per shell)
+# Git Stash command shortcuts (via aliases/function as per shell)
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gcp  = "git cherry-pick"
-gcpx = "git cherry-pick -x"
+gst   = "git stash"
+gstb  = "git stash branch"
+gstd  = "git stash drop"
+gstl  = "git stash list"
+gstp  = "git stash pop"
+gstpo = "git stash pop"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -27,8 +34,12 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gcp  { git cherry-pick @args }
-function gcpx { git cherry-pick -x @args }
+function gst   { git stash @args }
+function gstb  { git stash branch @args }
+function gstd  { git stash drop @args }
+function gstl  { git stash list @args }
+function gstp  { git stash pop @args }
+function gstpo { git stash pop @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }
