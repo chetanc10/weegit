@@ -18,17 +18,16 @@ _.path = ["{{ config_root }}/bin"]
 # ------------------------------------------------------------------
 ### Bash / Zsh / Fish (Native [shell_alias] support)
 [shell_alias]
-gc    = "git commit -v"
-gca   = "git commit -v -a"
-gcaa  = "git commit -a --amend -C HEAD" # Add uncommitted and unstaged changes to the last commit
-gcam  = "git commit -v -am"
-gcamd = "git commit --amend"
-gc!   = "git commit -v --amend"
-gca!  = "git commit -v -a --amend"
-gcn!  = "git commit -v --amend --no-edit"
-gcm   = "git commit -v -m"
-gci   = "git commit --interactive"
-gcsam = "git commit -S -am"
+gc      = "git commit -v"
+gca     = "git commit -v -a"
+gcaa    = "git commit -a --amend -C HEAD" # Add uncommitted and unstaged changes to the last commit
+gcam    = "git commit -v -am"
+gcamd   = "git commit -v --amend"
+gcaamd  = "git commit -v -a --amend"
+gcaamds = "git commit -v --amend --no-edit"
+gcm     = "git commit -v -m"
+gci     = "git commit --interactive"
+gcsam   = "git commit -S -am"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
 shell = "pwsh"
@@ -36,17 +35,16 @@ script = """
 if (-not $global:__mise_func_registry) { $global:__mise_func_registry = @{} }
 $__before = (Get-Command -CommandType Function).Name
 
-function gc    { git commit -v @args }
-function gca   { git commit -v -a @args }
-function gcaa  { git commit -a --amend -C HEAD @args } # Add uncommitted and unstaged changes to the last commit
-function gcam  { git commit -v -am @args }
-function gcamd { git commit --amend @args }
-function gc!   { git commit -v --amend @args }
-function gca!  { git commit -v -a --amend @args }
-function gcn!  { git commit -v --amend --no-edit @args }
-function gcm   { git commit -v -m @args }
-function gci   { git commit --interactive @args }
-function gcsam { git commit -S -am @args }
+function gc      { git commit -v @args }
+function gca     { git commit -v -a @args }
+function gcaa    { git commit -a --amend -C HEAD @args } # Add uncommitted and unstaged changes to the last commit
+function gcam    { git commit -v -am @args }
+function gcamd   { git commit -v --amend @args }
+function gcaaamd { git commit -v -a --amend @args }
+function gcaamds { git commit -v --amend --no-edit @args }
+function gcm     { git commit -v -m @args }
+function gci     { git commit --interactive @args }
+function gcsam   { git commit -S -am @args }
 
 # Save diff snapshot of function registry to get func names from this toml
 $__new = (Get-Command -CommandType Function).Name | Where-Object { $__before -notcontains $_ }

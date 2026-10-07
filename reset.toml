@@ -20,7 +20,7 @@ _.path = ["{{ config_root }}/bin"]
 [shell_alias]
 gus       = "git reset HEAD"
 grh       = "git reset"
-grh!      = "git reset --hard"
+grhh      = "git reset --hard"
 gpristine = "git reset --hard && git clean -dfx"
 ### Powershell (Use hooks and funcs until [shell_alias] is supported)
 [hooks.enter]
@@ -31,7 +31,7 @@ $__before = (Get-Command -CommandType Function).Name
 
 function gus       { git reset HEAD @args }
 function grh       { git reset @args }
-function grh!      { git reset --hard @args }
+function grhhh     { git reset --hard @args }
 function gpristine { git reset --hard && git clean -dfx @args }
 
 # Save diff snapshot of function registry to get func names from this toml
