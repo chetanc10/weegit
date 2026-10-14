@@ -1,43 +1,48 @@
 #!/usr/bin/env bash
-#about = Git inspect each modified file and act on it (diff and revert)
+#about = Git inspect each modified file and act on it
 set -euo pipefail
 
 cmd="$(basename "$0")"
 
 usage() {
     printf '%s\n' "$cmd — view or revert uncommitted file changes in a git repo.
+
 Usage: $cmd [-h] [-d path] [-s] [-e editor] [-v]
-  -h        Display this help message and exit
-  -d path   Filter modified files/folders by given path
-  -s        Include staged files
-  -e editor Override the editor (default: ${EDITOR-})
-  -v        Verbose: echo each git command
+  -h      Display this help message and exit
+  -d path Filter modified files/folders by given path
+  -s      Include staged files
+  -v      Verbose: echo each git command
+
+Runtime actions per modified file:
+  'o'     - Open file diff + actual file
+  'u'     - unstage file (option enabled with '-s')
+  'r'     - restore file by discarding changes
+  'a'     - add file for commit
+  'g'     - git log for the file
+  'x|q'   - exit
+
 NOTE: Pressing <ENTER> at the prompt skips to the next modified file."
 }
 
 dir=""
 staged=0
-editor=""
 verbose=0
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		-h) usage; exit 0 ;;
 		-d) dir="${2?error: -d requires a path}"; dir="${dir#./}"; shift 2 ;;
 		-s) staged=1; shift ;;
-		-e) editor="${2?error: -e requires an editor}"; shift 2 ;;
 		-v) verbose=1; shift ;;
 		*)  printf 'error: unknown option: %s\n' "$1" >&2; usage; exit 1 ;;
 	esac
 done
 
-if [[ -z "$editor" ]]; then
-    if [[ -n "${EDITOR:-}" ]] && command -v "$EDITOR" &>/dev/null; then
-        editor="$EDITOR"
-    else
-        for e in nvim vim nano; do
-            command -v "$e" &>/dev/null && editor="$e" && break
-        done
-    fi
+if [[ -n "${EDITOR:-}" ]] && command -v "$EDITOR" &>/dev/null; then
+	editor="$EDITOR"
+else
+	for e in nvim vim nano; do
+		command -v "$e" &>/dev/null && editor="$e" && break
+	done
 fi
 
 ! git rev-parse --is-inside-work-tree &>/dev/null && echo 'error: not inside a git repository\n' && exit 1
@@ -68,7 +73,12 @@ _act()
 			o) local diffsrc="$(mktemp)"
 				(_git diff --cached --name-only -- "$f" | grep -q .) && gitopt=" --cached" || gitopt=""
 				_git diff $gitopt -- "$f" > "$diffsrc"
-				"$editor" -R "$diffsrc" -O "$f" -c 'wincmd l | setlocal noreadonly'
+				case "$editor" in
+					nvim | vim )
+						"$editor" -R "$diffsrc" -O "$f" ;;
+					nano )
+						nano -Fv "$diffsrc" "$f" ;;
+				esac
 				rm -f "$diffsrc"
 				;;
 			u) _git restore --staged -- "$f" ;;
@@ -80,6 +90,14 @@ _act()
 		esac
 	done
 }
+
+
+if [ "$editor" == "nano" ]; then
+	echo "Opening file as read-only in nano"
+	echo "Use Alt+, to toggle view between diff and actual file"
+	read -n1 "Press ENTER to proceed.." ok
+fi
+
 
 while IFS= read -r file <&3; do
 	[[ -n "$dir" && "$file" != *"$dir"* ]] && continue
