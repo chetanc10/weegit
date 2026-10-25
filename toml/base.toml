@@ -29,6 +29,7 @@ gcp    = "git cherry-pick"
 gd     = "git diff"
 gds    = "git diff --staged"
 gdt    = "git difftool"
+gap    = "git apply"
 gpatch = "git format-patch -1"
 gclean = "git clean -fd"
 gf     = "git fetch --all --prune"
@@ -56,6 +57,7 @@ function gcp    { git cherry-pick @args }
 function gd     { git diff @args }
 function gds    { git diff --staged @args }
 function gdt    { git difftool @args }
+function gap    { git apply @args }
 function gpatch { git format-patch -1 @args }
 function gclean { git clean -fd @args }
 function gf     { git fetch --all --prune @args }
